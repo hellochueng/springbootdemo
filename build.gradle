@@ -39,6 +39,10 @@ jar {
 }
 
 dependencies {
+    //热部署
+    compile("org.springframework.boot:spring-boot-devtools")
+    //返回html页面的配置
+    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
     //测试包
     testCompile group: 'junit', name: 'junit', version: '4.12'
     //springboot单元测试包
@@ -48,8 +52,13 @@ dependencies {
     //springdatarest包
     compile("org.springframework.boot:spring-boot-starter-data-rest")
     compile("org.springframework.boot:spring-boot-starter-actuator")
-    //springboot缓存包
+    //hibernate的二级缓存包
+    compile("net.sf.ehcache:ehcache:2.10.1")
+    //springboot整合缓存包
     compile("org.springframework.boot:spring-boot-starter-cache")
+    //springboot整合shiro包
+    compile("org.apache.shiro:shiro-spring:1.2.5")
+    compile("org.apache.shiro:shiro-ehcache:1.2.5")
     //springboot整合tomcat包
     compile("org.springframework.boot:spring-boot-starter-tomcat")
     //apache common包
@@ -63,10 +72,6 @@ dependencies {
     compile group: 'commons-logging', name: 'commons-logging', version: '1.1.1'
     //连mysql包
     compile("mysql:mysql-connector-java:5.1.9")
-    //hibernate的二级缓存包
-    compile("net.sf.ehcache:ehcache:2.10.1")
-    //springboot整合shiro包
-    compile("org.apache.shiro:shiro-spring:1.2.3")
     //编译存放的jar包位子
     compile fileTree(dir: 'libs', include: ['*.jar'])
     //整合阿里支付宝
@@ -81,5 +86,5 @@ dependencies {
     compile group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: '1.1.1'
     //dom4j包
     compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
-
+    compile group: 'log4j', name: 'log4j', version: '1.6.1'
 }

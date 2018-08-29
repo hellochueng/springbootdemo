@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping("/User")
 public class UserController {
 
     @RequestMapping("/hello")
@@ -13,4 +12,17 @@ public class UserController {
     public String helloworld(){
         return "hello world";
     }
+
+    @RequestMapping("/User/hello")
+    @ResponseBody
+    public String hello(){
+        return "hello world";
+    }
+
+    @RequestMapping("/login")
+    public String login(){
+        System.out.println("进来了");
+        return "index";
+    }
+
 }
