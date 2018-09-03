@@ -2,10 +2,15 @@ package org.com.lzz.config;
 
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -19,8 +24,15 @@ public class ShiroRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
 
         //这里可以通过principals对象获取到登录之后的用户对象信息，从中拿到权限
-        System.out.println("something");
-        return null;
+        Set<String> roles = new HashSet<>();
+        Set<String> permissions = new HashSet<>();
+
+        roles.add("user");
+        permissions.add("order");
+        permissions.add("admin");
+        SimpleAuthorizationInfo info = new SimpleAuthorizationInfo(roles);
+        info.addStringPermissions(permissions);
+        return info;
     }
 
     /*

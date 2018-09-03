@@ -1,5 +1,6 @@
 package org.com.lzz.config;
 
+import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
@@ -35,11 +36,12 @@ public class ShiroConfiguration {
 
     //处理认证匹配处理器：如果自定义需要实现继承HashedCredentialsMatcher
     //指定加密方式方式，也可以在这里加入缓存，当用户超过五次登陆错误就锁定该用户禁止不断尝试登陆
+    //解决每次启动项目报错（用户密码不能为明文错误）
 //    @Bean(name = "hashedCredentialsMatcher")
 //    public HashedCredentialsMatcher hashedCredentialsMatcher() {
 //        HashedCredentialsMatcher credentialsMatcher = new HashedCredentialsMatcher();
 //        credentialsMatcher.setHashAlgorithmName("MD5");
-//        credentialsMatcher.setHashIterations(2);
+//        credentialsMatcher.setHashIterations(1024);
 //        credentialsMatcher.setStoredCredentialsHexEncoded(true);
 //        return credentialsMatcher;
 //    }
@@ -91,16 +93,15 @@ public class ShiroConfiguration {
 //        filters.put("logout", logoutFilter);
 //        shiroFilterFactoryBean.setFilters(filters);
 
-        shiroFilterFactoryBean.setUnauthorizedUrl("/403");
+
         Map<String, Filter> filters = new HashMap<>();
         filters.put("login", new SignatureAuthcFilter());
         shiroFilterFactoryBean.setFilters(filters);
-
         Map<String, String> filterChainDefinitionManager = new LinkedHashMap<>();
-        filterChainDefinitionManager.put("/User/**", "authc,roles[user]");//anon 可以理解为不拦截
+        filterChainDefinitionManager.put("/order", "login,perms[order]");//anon 可以理解为不拦截
         filterChainDefinitionManager.put("/statistic/**",  "anon");//静态资源不拦截
 //        filterChainDefinitionManager.put("/user/**", "authc,roles[user]");
-//        filterChainDefinitionManager.put("/shop/**", "authc,roles[shop]");
+        filterChainDefinitionManager.put("/shop", "anon");
 //        filterChainDefinitionManager.put("/admin/**", "authc,roles[admin]");
 //        filterChainDefinitionManager.put("/hello", "authc,roles[admin]");//anon 可以理解为不拦截
 //        filterChainDefinitionManager.put("/logout", "logout");                  //登出配置 shiro自己实现了登出功能
@@ -110,9 +111,13 @@ public class ShiroConfiguration {
         //一个继承AccessControlFilter的filter    其中配上前端传过来的用户名密码或者token之类的东西进行验证这个用户是否已经登录了，登录了就可以进行接下来的请求了，否则不然
         filterChainDefinitionManager.put("/**",  "login");//其他资源全部拦截
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionManager);
-
+        shiroFilterFactoryBean.setUnauthorizedUrl("/login");
         return shiroFilterFactoryBean;
     }
+
+    /*
+        开启请求权限拦截注解模式
+     */
 
     /**
      * 开启Shiro的注解(如@RequiresRoles,@RequiresPermissions),需借助SpringAOP扫描使用Shiro注解的类,并在必要时进行安全逻辑验证
@@ -120,13 +125,13 @@ public class ShiroConfiguration {
      * 不要使用 DefaultAdvisorAutoProxyCreator 会出现二次代理的问题，这里不详述
      * @return
      */
-//    @Bean
-//    @ConditionalOnMissingBean
-//    public DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator() {
-//        DefaultAdvisorAutoProxyCreator daap = new DefaultAdvisorAutoProxyCreator();
-//        daap.setProxyTargetClass(true);
-//        return daap;
-//    }
+    @Bean
+    @ConditionalOnMissingBean
+    public DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator() {
+        DefaultAdvisorAutoProxyCreator daap = new DefaultAdvisorAutoProxyCreator();
+        daap.setProxyTargetClass(true);
+        return daap;
+    }
 
     @Bean
     public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(DefaultWebSecurityManager securityManager) {

@@ -27,7 +27,6 @@ public class SignatureAuthcFilter extends AccessControlFilter {
         String authToken, nonce, signature;
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String uri = httpRequest.getRequestURI();
-        logger.debug("uri: {}", uri);
 
 //        authToken = httpRequest.getHeader(SecurityConstants.HEADER_AUTH_TOKEN);
 //        nonce = httpRequest.getHeader(SecurityConstants.HEADER_NONCE);

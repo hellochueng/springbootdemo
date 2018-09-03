@@ -1,5 +1,7 @@
 package org.com.lzz.controller;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -7,16 +9,24 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class UserController {
 
-    @RequestMapping("/hello")
+    @RequestMapping("/order")
     @ResponseBody
-    public String helloworld(){
-        return "hello world";
+    public String order(){
+        return "order";
     }
 
-    @RequestMapping("/User/hello")
+    @RequestMapping("/admin")
     @ResponseBody
+//    @RequiresRoles("admin")
+    @RequiresPermissions("admin")
     public String hello(){
-        return "hello world";
+        return "admin";
+    }
+
+    @RequestMapping("/shop")
+    @ResponseBody
+    public String shop(){
+        return "shopping";
     }
 
     @RequestMapping("/login")
@@ -24,5 +34,4 @@ public class UserController {
         System.out.println("进来了");
         return "index";
     }
-
 }
