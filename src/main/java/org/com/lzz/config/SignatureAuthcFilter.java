@@ -2,9 +2,12 @@ package org.com.lzz.config;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.crypto.hash.format.Base64Format;
 import org.apache.shiro.web.filter.AccessControlFilter;
+import org.com.lzz.test.Base64Encoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.misc.BASE64Encoder;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -12,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Base64;
 
 public class SignatureAuthcFilter extends AccessControlFilter {
 
@@ -34,7 +38,8 @@ public class SignatureAuthcFilter extends AccessControlFilter {
 //
 //        SignatureToken signatureToken = new SignatureToken(authToken, nonce, signature);
         try {
-            SecurityUtils.getSubject().login(new UsernamePasswordToken("tom","123456",true,httpRequest.getRemoteHost()));
+            System.out.println("token getName:::::::::"+new BASE64Encoder().encode("123456".getBytes()));
+            SecurityUtils.getSubject().login(new UsernamePasswordToken("tom",new BASE64Encoder().encode("123456".getBytes()),true,httpRequest.getRemoteHost()));
         } catch (Exception e) {
             logger.error(e.getMessage());
             onLoginFail(response);
