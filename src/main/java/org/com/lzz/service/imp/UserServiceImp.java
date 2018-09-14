@@ -23,9 +23,6 @@ public class UserServiceImp implements UserService {
     @Autowired
     UserDao userDao;
 
-    @Autowired
-    private RedisTemplate redisTemplate;
-
     @Override
     @Cacheable(value = "user", key = "#root.targetClass + #ID", unless = "#result eq null")
     public User getUserById(String ID) {
