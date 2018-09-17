@@ -15,6 +15,7 @@ buildscript {
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.2.RELEASE")
         classpath 'io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE'
+        classpath 'org.hidetake:gradle-ssh-plugin:2.6.0'
     }
 }
 repositories {
@@ -25,6 +26,8 @@ repositories {
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
+apply plugin: 'war'
+apply plugin: 'org.hidetake.ssh'
 sourceCompatibility = 1.8
 
 
@@ -33,14 +36,30 @@ springBoot {
     mainClass = "org.com.lzz.Application"
 }
 
-jar {
+war {
     baseName = 'springbootdemo'
-    version = '0.1.0'
+    version = '1'
+}
+
+
+ssh.settings {
+    knownHosts = allowAnyHosts
+}
+
+remotes {
+    deployServer {
+        host = '139.199.208.159'
+        user = 'root'
+        password = '20141799lai'
+    }
 }
 
 dependencies {
+
     //热部署
     compile("org.springframework.boot:spring-boot-devtools")
+    //整合redis
+    compile("org.springframework.boot:spring-boot-starter-redis")
     //返回html页面的配置
     compile("org.springframework.boot:spring-boot-starter-thymeleaf")
     //测试包
@@ -70,6 +89,10 @@ dependencies {
     compile group: 'commons-codec', name: 'commons-codec', version: '1.6'
     compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.0.1'
     compile group: 'commons-logging', name: 'commons-logging', version: '1.1.1'
+    compile group: 'org.apache.lucene', name: 'lucene-highlighter', version: '4.7.2'
+    compile group: 'com.janeluo', name: 'ikanalyzer', version: '2012_u6'
+    //
+    compile group :'org.springframework.boot',name:'spring-boot-legacy',version:'1.1.0.RELEASE'
     //连mysql包
     compile("mysql:mysql-connector-java:5.1.9")
     //编译存放的jar包位子
@@ -86,5 +109,56 @@ dependencies {
     compile group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: '1.1.1'
     //dom4j包
     compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
-    compile group: 'log4j', name: 'log4j', version: '1.6.1'
+}
+
+task copyJars(type:Copy) {
+    from configurations.runtime
+
+    into 'libs' // 目标位置
+}
+task shutdownTomcat() << {
+    ssh.run {
+        session(remotes.deployServer) {
+            println 'shut down tomcat...'
+            executeScript('''#!/bin/sh
+                        cd /usr/local/apache-tomcat-8.5.33/bin
+                        ./shutdown.sh
+                    ''') { result -> println result
+            }
+        }
+    }
+}
+
+task del(dependsOn:shutdownTomcat) << {
+    ssh.run {
+        session(remotes.deployServer) {
+            println 'start deleting...'
+            executeScript '''#!/bin/sh
+                        rm -rf /usr/local/apache-tomcat-8.5.33/webapps/springbootdemo-1
+                        rm -f /usr/local/apache-tomcat-8.5.33/webapps/springbootdemo-1.war
+                    '''
+        }
+    }
+}
+
+task copy(dependsOn:del) << {
+    ssh.run {
+        session(remotes.deployServer) {
+            println 'start copying war...'
+            put from: buildDir.toString() + '/libs/springbootdemo-1.war', into: '/usr/local/apache-tomcat-8.5.33/webapps'
+        }
+    }
+}
+
+task deploy(dependsOn:copy) << {
+    ssh.run {
+        session(remotes.deployServer) {
+            println 'start tomcat...'
+            executeScript('''#!/bin/sh
+                        cd /usr/local/apache-tomcat-8.5.33/bin
+                        ./startup.sh
+                    ''') { result -> println result
+            }
+        }
+    }
 }
