@@ -1,10 +1,43 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <title>登录页面</title>
+    <script src="style/js/jquery-2.1.1.min.js"></script>
+    <script src="style/js/common.js"></script>
+
+
 </head>
+
 <body>
     欢迎登录
+    <button onclick="on()">aaa</button>
 </body>
 </html>
+
+<script>
+    $(function(){
+    })
+    function on(){
+// contentType:'application/x-www-form-urlencoded',
+//         ar1 = [{"name":"1","pwd":"2","id":"213"},{"name":"1","pwd":"2","id":"213"},{"name":"1","pwd":"2","id":"213"}];
+
+        ar3 = [7,8,9];
+        var testData={"nameIds": [1,2,3], "age": 18}
+
+        ar1 = {"name":"tom","pwd":"123","id":"213231"};
+        ar2 = {"name":"tom","pwd":"123","id":"213231"};
+        ar3 = {"name":"tom","pwd":"123","id":"213231"};
+        list = [ar1,ar2,ar3];
+        $.ajax({
+            type: "POST",
+            url: "/test",
+            contentType:"application/json",
+            data:JSON.stringify(list),
+            dataType: "json",
+            success: function(data){
+                alert(data)
+            },
+        });
+    }
+
+</script>
